@@ -8,12 +8,16 @@ jobs:
           uses: actions/checkout@v2
           with:
             persist-credentials: false
-        
+        - name: Cache Node Repository
+          uses: actions/cache@v1
+          with:
+            path: ./node_modules
+            key: jetlinks-ui-antd-repository
         - name: Install 🔧
           run: |
             npm install
             npm run-script build
-            cp dist ./docker/
+            cp -r dist ./docker/
             cd docker
             sh ./build
             docker build -t registry.cn-shenzhen.aliyuncs.com/jetlinks/jetlinks-ui-antd:1.0-SNAPSHOT .
