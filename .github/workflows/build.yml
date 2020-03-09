@@ -3,30 +3,22 @@ on: [push]
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
-     
         steps:
-        # - uses: actions/checkout@v2
-        # - name: Use Node.js 12.x
-        #     uses: actions/setup-node@v1
-        #     with:
-        #     node-version: 12.x
-
-        - name: Cache Node Repository
-          uses: actions/cache@v1
-          with:
-            path: ./node_modules
-            key: jetlinks-ui-antd-repository
-        - name: Install
+        # - name: Checkout
+        #   uses: actions/checkout@v2
+        #   with:
+        #     persist-credentials: false
+        # - name: Cache npm Repository
+        #   uses: actions/cache@v1
+        #   with:
+        #     path: ./node_modules
+        #     key: jetlinks-ui-antd-repository
+        - name: Install 🔧
           run: |
-            npm install
-            npm run-script build
-            cp -r dist ./docker/
-            cd docker
-            sh ./build
             docker build -t registry.cn-shenzhen.aliyuncs.com/jetlinks/jetlinks-ui-antd:1.0-SNAPSHOT .
 
-        - name: Build and Deploy
-          uses: jetlinks/jetlinks-ui-antd@dynamicRender
+        # - name: Build and Deploy
+        #   uses: jetlinks/jetlinks-ui-antd@dynamicRender
         
         - name: Login Docker Repo
           run: echo "${{ secrets.ALIYUN_DOCKER_REPO_PWD }}" | docker login registry.cn-shenzhen.aliyuncs.com -u ${{ secrets.ALIYUN_DOCKER_REPO_USERNAME }} --password-stdin
