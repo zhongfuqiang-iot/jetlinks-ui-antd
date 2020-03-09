@@ -109,7 +109,7 @@ export default {
               name: '统计分析',
               path: '/analysis',
               icon: 'bar-chart',
-              component: './analysis',
+              component: './dynamic',
             },
             {
               path: 'system',

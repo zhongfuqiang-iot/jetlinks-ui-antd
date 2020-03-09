@@ -38,7 +38,7 @@ const Save: React.FC<Props> = props => {
           setSupportsType(response.result || []);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     apis.certificate
       .listNoPaging({ paging: false })
       .then(response => {
@@ -46,7 +46,7 @@ const Save: React.FC<Props> = props => {
           setCertificateList(response.result || []);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const renderTcpServerParse = () => {
@@ -633,7 +633,7 @@ const Save: React.FC<Props> = props => {
     form.validateFields((err, fileValue) => {
       if (err) return;
       const { id } = props.data;
-      props.save({ id, ...fileValue });
+      props.save({ id, ...fileValue, state: { text: "已停止", value: "disabled" } });
     });
   };
   return (
