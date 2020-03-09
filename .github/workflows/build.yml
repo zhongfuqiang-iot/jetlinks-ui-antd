@@ -4,15 +4,15 @@ jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
-        # - name: Checkout
-        #   uses: actions/checkout@v2
-        #   with:
-        #     persist-credentials: false
-        # - name: Cache npm Repository
-        #   uses: actions/cache@v1
-        #   with:
-        #     path: ./node_modules
-        #     key: jetlinks-ui-antd-repository
+        - name: Checkout
+          uses: actions/checkout@v2
+          with:
+            persist-credentials: false
+        - name: Cache npm Repository
+          uses: actions/cache@v1
+          with:
+            path: ./node_modules
+            key: jetlinks-ui-antd-repository
         - name: Install 🔧
           run: |
             docker build -t registry.cn-shenzhen.aliyuncs.com/jetlinks/jetlinks-ui-antd:1.0-SNAPSHOT .
