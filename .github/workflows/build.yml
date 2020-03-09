@@ -19,7 +19,6 @@ jobs:
             npm run-script build
             docker build -t registry.cn-shenzhen.aliyuncs.com/jetlinks/jetlinks-ui-antd:1.0-SNAPSHOT .
 
-        # - name: Build and Deploy
         #   uses: jetlinks/jetlinks-ui-antd@dynamicRender
         
         - name: Login Docker Repo
