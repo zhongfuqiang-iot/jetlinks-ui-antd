@@ -1,5 +1,8 @@
 name: build App
-on: [push]
+on:
+  push:
+    branches:
+      - 1.1
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest

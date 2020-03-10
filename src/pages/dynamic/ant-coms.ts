@@ -21,7 +21,7 @@ import Switch from './coms/Switch';
 import Row2 from './coms/Row2';
 import Row4 from './coms/Row4';
 import Row8 from './coms/Row8';
-import Table_Column from './coms/Table.Column';
+// import Table_Column from './coms/Table.Column';
 import Modal from './coms/Modal';
 import div from './coms/div';
 
