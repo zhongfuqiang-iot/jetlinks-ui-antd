@@ -107,7 +107,7 @@ const Save: React.FC<Props> = props => {
   };
 
   const uploadProps = {
-    accept: '.jar',
+    accept: '.jar,.zip',
     name: 'file',
     action: `/jetlinks/file/static`,
     showUploadList: false,
@@ -168,6 +168,30 @@ const Save: React.FC<Props> = props => {
                     </Upload>
                   </Col>
                 </Row>
+              </Form.Item>
+            </Col>
+          </Row>
+        </div>
+      );
+    }
+    if (protocolType === 'local') {
+      return (
+        <div>
+          <Row>
+            <Col span={12}>
+              <Form.Item key="provider" label="类名">
+                {getFieldDecorator('configuration.provider', {
+                  initialValue: props.data?.configuration?.provider,
+                  rules: [{ required: true, message: '请输入类名' }],
+                })(<Input />)}
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item key="location" label="文件地址">
+                {getFieldDecorator('configuration.location', {
+                  initialValue: jarLocation,
+                  rules: [{ required: true, message: '请输入文件地址' }],
+                })(<Input />)}
               </Form.Item>
             </Col>
           </Row>
@@ -312,12 +336,20 @@ const Save: React.FC<Props> = props => {
                     setProtocolType(value);
                   }}
                 >
-                  <Select.Option value="script">
+                  {
+                    providers.map(i => {
+                      return <Select.Option key={i} value={i}>{i}</Select.Option>
+                    })
+                  }
+                  {/* <Select.Option value="script">
                     script
                   </Select.Option>
                   <Select.Option value="jar">
                     jar
                   </Select.Option>
+                  <Select.Option value="local">
+                    local
+                  </Select.Option> */}
                 </Select>,
               )}
             </Form.Item>

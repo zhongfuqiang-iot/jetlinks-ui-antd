@@ -12,6 +12,7 @@ import AutoHide from "@/pages/analysis/components/Hide/autoHide";
 import encodeQueryParam from "@/utils/encodeParam";
 import SearchForm from "@/components/SearchForm";
 import {downloadObject} from '@/utils/utils';
+import {CategoryItem} from "@/pages/data-screen/category/data";
 
 const {confirm} = Modal;
 
@@ -134,21 +135,24 @@ const Screen = (props: Props) => {
           message.error('配置错误,请联系管理员');
         }
       }
-    })
-    api.categoty.query_tree({})
-      .then((response: any) => {
-        if (response.status === 200) {
-          let datalist = response.result.map((item: any) => {
-            return getView(item)
-          });
-          setCategoryList(datalist)
-        }
-      })
-      .catch(() => {
-      });
+    });
+
+    api.categoty.queryNoPaging({}).then(res => {
+      if (res.status === 200) {
+        setCategoryList(res.result);
+      }
+    });
 
     handleSearch(searchParam);
   }, []);
+
+  const findCategory = (id:string)=>{
+
+    const category: Partial<CategoryItem> =
+      categoryList.find((i:any) => i.id === id) || {};
+
+    return category.name;
+  };
 
   return (
     <PageHeaderWrapper title="大屏管理">
@@ -170,10 +174,10 @@ const Screen = (props: Props) => {
                 {
                   label: '大屏分类',
                   key: 'classifiedId$LIKE',
-                  type: 'treeSelect',
+                  type: 'list',
                   props: {
                     data: categoryList,
-                    dropdownStyle: {maxHeight: 500}
+                    mode: 'default'
                   }
                 }]}
             />
@@ -202,7 +206,7 @@ const Screen = (props: Props) => {
         <div className={styles.cardList}>
           <List<any>
             rowKey="id"
-            grid={{gutter: 24, xl: 4, lg: 3, md: 3, sm: 2, xs: 1}}
+            grid={{gutter: 24, xl: 4, lg: 3, md: 2, sm: 2, xs: 1}}
             dataSource={dataList.data || []}
             pagination={{
               current: dataList.pageIndex + 1,
@@ -234,7 +238,7 @@ const Screen = (props: Props) => {
                                   id: item.id,
                                   name: item.name,
                                   description: item.description,
-                                  catalogId: props.data,
+                                  catalogId: item.catalogId,
                                   url: url
                                 })
                               }}/>
@@ -281,15 +285,15 @@ const Screen = (props: Props) => {
                     >
                       <Card.Meta
                         avatar={<Avatar size={60} src={ metadata.visual != undefined && metadata.visual.backgroundUrl != undefined ? metadata.visual.backgroundUrl : false }/>}
-                        title={<AutoHide title={item.name} style={{width: '95%'}}/>}
+                        title={<AutoHide title={item.name} style={{width: '95%',fontWeight:600}}/>}
                         description={<AutoHide title={item.id} style={{width: '95%'}}/>}
                       />
                       <div className={styles.status}>
-                        <div>
-                          <p>状态: 已{item.state.text}</p>
+                        <div style={{textAlign: 'center', minWidth: '80px'}}>
+                          <p>状态: <span style={{fontWeight:600}}>已{item.state.text}</span></p>
                         </div>
-                        <div>
-                          <p>分类: {item.catalogId}</p>
+                        <div style={{textAlign: 'center', minWidth: '80px'}}> 
+                          <p>分类: <span style={{fontWeight:600}}>{findCategory(item.catalogId)}</span></p>
                         </div>
                       </div>
                       <div className={styles.edit} style={{display: item.id == id ? 'block' : 'none'}}>

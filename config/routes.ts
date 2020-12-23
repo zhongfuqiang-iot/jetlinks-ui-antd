@@ -122,7 +122,7 @@ export const routes = [
                         icon: 'box-plot',
                         tenant: ['admin', 'member'],
                         iconfont: 'icon-device-manage',
-                        authority: ['device-product', 'device-instance', 'admin'],
+                        authority: ['device-product', 'device-instance', 'device-category', 'admin'],
                         routes: [
                             {
                                 path: '/device/product',
@@ -132,6 +132,15 @@ export const routes = [
                                 tenant: ['admin', 'member'],
                                 authority: ['device-product', 'admin'],
                                 component: './device/product',
+                            },
+                            {
+                                path: '/device/product-category',
+                                name: '产品分类',
+                                icon: 'appstore',
+                                iconfont: 'icon-shebei',
+                                tenant: ['admin', 'member'],
+                                authority: ['device-category', 'admin'],
+                                component: './device/product-category',
                             },
                             {
                                 hideInMenu: true,
@@ -169,6 +178,7 @@ export const routes = [
                                 component: './device/instance/editor',
                             },
                             {
+                                hideInMenu: true,
                                 path: '/device/group',
                                 name: '分组',
                                 icon: 'gold',
@@ -179,7 +189,7 @@ export const routes = [
                                 component: './device/group',
                             },
                             {
-                                hideInMenu: true,
+                                // hideInMenu: true,
                                 path: '/device/tree',
                                 name: '分组',
                                 tenant: ['admin', 'member'],
@@ -239,6 +249,12 @@ export const routes = [
                                 iconfont: 'icon-gujianshengji',
                                 component: './device/firmware/editor',
                             },
+                            {
+                                path: '/device/alarm',
+                                name: '设备告警',
+                                icon: 'alert',
+                                component: './device/alarmlog',
+                            }
                         ],
                     },
                     {
@@ -347,6 +363,13 @@ export const routes = [
                                 authority: ['rule-instance', 'admin'],
                                 component: './rule-engine/sqlRule',
                             },
+                            {
+                                path: '/rule-engine/scene',
+                                name: '场景联动',
+                                icon: 'codeSandbox',
+                                authority: ['rule-scene', 'admin'],
+                                component: './rule-engine/scene'
+                            }
                             // {
                             //   path: '/rule-engine/email',
                             //   name: 'email',
@@ -367,7 +390,7 @@ export const routes = [
                         icon: 'desktop',
                         tenant: ['admin'],
                         iconfont: 'icon-icon-',
-                        authority: ['big-screen','admin'],
+                        authority: ['big-screen', 'admin'],
                         routes: [
                             {
                                 path: '/data-screen/category',
@@ -375,7 +398,7 @@ export const routes = [
                                 icon: 'appstore',
                                 tenant: ['admin'],
                                 iconfont: 'icon-category-search-fill',
-                                authority: ['big-screen','admin'],
+                                authority: ['big-screen', 'admin'],
                                 version: 'pro',
                                 component: './data-screen/category',
                             },
@@ -383,9 +406,9 @@ export const routes = [
                                 path: '/data-screen/screen',
                                 name: '大屏管理',
                                 icon: 'fund',
-                                tenant: ['admin'],
+                                tenant: ['admin', 'big-screen'],
                                 iconfont: 'icon-screen',
-                                authority: ['big-screen','admin'],
+                                authority: ['big-screen', 'admin'],
                                 version: 'pro',
                                 component: './data-screen/screen',
                             }
@@ -395,11 +418,13 @@ export const routes = [
                         path: 'simulator',
                         name: '模拟测试',
                         icon: 'bug',
+                        version: 'pro',
                         authority: ['network-simulator', 'admin'],
                         routes: [
                             {
                                 path: '/simulator/device',
                                 name: '设备模拟器',
+                                version: 'pro',
                                 icon: 'paper-clip',
                                 authority: ['network-simulator', 'admin'],
                                 component: './simulator/device',
@@ -430,6 +455,47 @@ export const routes = [
                                 component: './logger/system',
                             },
                         ],
+                    },
+                    {
+                        path: 'cloud',
+                        name: '云云对接',
+                        icon: 'cloud',
+                        version: 'pro',
+                        authority: ['dueros-product', 'aliyun-bridge', 'onenet-product', 'ctwing-product', 'admin'],
+                        routes: [
+                            {
+                                path: '/cloud/duer',
+                                name: 'DuerOS',
+                                version: 'pro',
+                                authority: ['dueros-product', 'admin'],
+                                icon: 'cloud',
+                                component: './cloud/dueros',
+                            },
+                            {
+                                path: '/cloud/aliyun',
+                                name: '阿里云',
+                                version: 'pro',
+                                authority: ['aliyun-bridge', 'admin'],
+                                icon: 'aliyun',
+                                component: './cloud/aliyun',
+                            },
+                            {
+                                path: '/cloud/onenet',
+                                name: '移动OneNet',
+                                version: 'pro',
+                                authority: ['onenet-product', 'admin'],
+                                icon: 'mobile',
+                                component: './cloud/onenet',
+                            },
+                            {
+                                path: '/cloud/ctwing',
+                                name: '电信CTWing',
+                                version: 'pro',
+                                authority: ['ctwing-product', 'admin'],
+                                icon: 'phone',
+                                component: './cloud/ctwing',
+                            }
+                        ]
                     },
                     {
                         path: 'account',

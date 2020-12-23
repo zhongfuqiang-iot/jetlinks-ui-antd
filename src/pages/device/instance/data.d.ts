@@ -19,6 +19,8 @@ export class DeviceInstance extends SimpleType {
 
   metadata: string;
 
+  binds: any;
+
   state: {
     value: string,
     text: string,
@@ -50,6 +52,8 @@ export class DeviceInstance extends SimpleType {
   orgName: string;
 
   configuration:any;
+
+  cachedConfiguration: any;
 
   transport:string;
 

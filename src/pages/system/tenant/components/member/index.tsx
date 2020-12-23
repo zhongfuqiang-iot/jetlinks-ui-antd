@@ -31,12 +31,20 @@ const Member = (props: Props) => {
 
   const handleSearch = (params: any) => {
     setSearchParam(params);
-    if (id) {
-      service.member.query(id, encodeQueryParam(params)).subscribe(resp => {
+    if (tenantAdmin) {
+      service.member.query2(encodeQueryParam(params)).subscribe(resp => {
         setUserList(resp);
         setLoading(false);
       })
+    } else {
+      if (id) {
+        service.member.query(id, encodeQueryParam(params)).subscribe(resp => {
+          setUserList(resp);
+          setLoading(false);
+        })
+      }
     }
+
   };
 
   useEffect(() => {

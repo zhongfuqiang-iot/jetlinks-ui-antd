@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {Badge, Button, Card, Descriptions, message, Popconfirm, Row, Spin, Tabs, Tooltip} from 'antd';
-import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {connect} from 'dva';
-import {router} from 'umi';
-import {DeviceProduct} from '../data.d';
+import React, { useEffect, useState } from 'react';
+import { Badge, Button, Card, Descriptions, Icon, message, Popconfirm, Row, Spin, Tabs, Tooltip } from 'antd';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { connect } from 'dva';
+import { router } from 'umi';
+import { DeviceProduct } from '../data.d';
 import Definition from './definition';
-import {ConnectState, Dispatch} from '@/models/connect';
+import { ConnectState, Dispatch } from '@/models/connect';
 import apis from '@/services';
 import Save from '.';
 import numeral from 'numeral';
@@ -34,7 +34,7 @@ const Detail: React.FC<Props> = props => {
   const initState: State = {
     basicInfo: {},
     saveVisible: false,
-    config: {},
+    config: [],
     orgInfo: {},
     deviceCount: 0,
     spinning: true,
@@ -42,7 +42,7 @@ const Detail: React.FC<Props> = props => {
   };
   const {
     dispatch,
-    location: {pathname},
+    location: { pathname },
   } = props;
   const [events, setEvents] = useState<any[]>([]);
   const [functions, setFunctions] = useState<any[]>([]);
@@ -57,10 +57,12 @@ const Detail: React.FC<Props> = props => {
   const [units, setUnits] = useState(initState.units);
   const [updateVisible, setUpdateVisible] = useState(false);
 
-  const handleSearch = (id: string) => {
+  const handleSearch = (id?: string) => {
+    const list = pathname.split('/');
+    const temp = id || list[list.length - 1];
     dispatch({
       type: 'deviceProduct/queryById',
-      payload: id,
+      payload: temp,
       callback: (r: any) => {
         if (r.status === 200) {
           const data = r.result;
@@ -74,16 +76,21 @@ const Detail: React.FC<Props> = props => {
             setProperties(metadata.properties);
             setTags(metadata.tags);
           }
-          apis.deviceProdcut
-            .protocolConfiguration(data.messageProtocol, data.transportProtocol)
-            .then(resp => {
-              setConfig(resp.result);
-            });
+          // apis.deviceProdcut
+          //   .protocolConfiguration(data.messageProtocol, data.transportProtocol)
+          //   .then(resp => {
+          //     // console.log(resp)
+          //     setConfig(resp.result);
+          //   });
+          apis.deviceProdcut.productConfiguration(data.id).then(resp => {
+            // console.log(resp.result)
+            setConfig(resp.result);
+          })
         }
       },
     });
 
-    apis.deviceInstance.count(encodeQueryParam({terms: {'productId': id}}))
+    apis.deviceInstance.count(encodeQueryParam({ terms: { 'productId': id } }))
       .then(res => {
         if (res.status === 200) {
           setDeviceCount(res.result);
@@ -101,7 +108,7 @@ const Detail: React.FC<Props> = props => {
           ));
         }
       }).catch(() => {
-    });
+      });
 
     apis.deviceProdcut.units().then((response: any) => {
       if (response.status === 200) {
@@ -118,13 +125,13 @@ const Detail: React.FC<Props> = props => {
 
   const saveData = (item?: any) => {
     let data: Partial<DeviceProduct>;
-    const metadata = JSON.stringify({events, properties, functions, tags});
+    const metadata = JSON.stringify({ events, properties, functions, tags });
 
     // TODO 这个地方有疑惑，set数据之后此处数据还是未更新。原因待查
     if (item) {
-      data = {...item, metadata};
+      data = { ...item, metadata };
     } else {
-      data = {...basicInfo, metadata};
+      data = { ...basicInfo, metadata };
     }
     apis.deviceProdcut
       .saveOrUpdate(data)
@@ -141,18 +148,18 @@ const Detail: React.FC<Props> = props => {
   };
 
   const updateData = (type: string, item: any) => {
-    let metadata = JSON.stringify({events, properties, functions, tags});
+    let metadata = JSON.stringify({ events, properties, functions, tags });
     if (type === 'event') {
-      metadata = JSON.stringify({events: item, properties, functions, tags});
+      metadata = JSON.stringify({ events: item, properties, functions, tags });
     } else if (type === 'properties') {
-      metadata = JSON.stringify({events, properties: item, functions, tags});
+      metadata = JSON.stringify({ events, properties: item, functions, tags });
     } else if (type === 'function') {
-      metadata = JSON.stringify({events, properties, functions: item, tags});
+      metadata = JSON.stringify({ events, properties, functions: item, tags });
     } else if (type === 'tags') {
-      metadata = JSON.stringify({events, properties, functions, tags: item});
+      metadata = JSON.stringify({ events, properties, functions, tags: item });
     }
 
-    const data = {...basicInfo, metadata};
+    const data = { ...basicInfo, metadata };
     apis.deviceProdcut
       .saveOrUpdate(data)
       .then((re: any) => {
@@ -211,15 +218,15 @@ const Detail: React.FC<Props> = props => {
   };
 
   const content = (
-    <div style={{marginTop: 30}}>
+    <div style={{ marginTop: 30 }}>
       <Descriptions column={4}>
         <Descriptions.Item label="设备数量">
           <div>
             {numeral(deviceCount).format('0,0')}
-            <a style={{marginLeft: 10}}
-               onClick={() => {
-                 router.push(`/device/instance?productId=${basicInfo.id}`);
-               }}
+            <a style={{ marginLeft: 10 }}
+              onClick={() => {
+                router.push(`/device/instance?productId=${basicInfo.id}`);
+              }}
             >查看</a>
           </div>
         </Descriptions.Item>
@@ -230,21 +237,21 @@ const Detail: React.FC<Props> = props => {
   const titleInfo = (
     <Row>
       <div>
-          <span>
-            产品：{basicInfo.name}
-          </span>
-        <Badge style={{marginLeft: 20}} color={basicInfo.state === 1 ? 'green' : 'red'}
-               text={basicInfo.state === 1 ? '已发布' : '未发布'}/>
+        <span>
+          产品：{basicInfo.name}
+        </span>
+        <Badge style={{ marginLeft: 20 }} color={basicInfo.state === 1 ? 'green' : 'red'}
+          text={basicInfo.state === 1 ? '已发布' : '未发布'} />
         {basicInfo.state === 1 ? (
           <Popconfirm title="确认停用？" onConfirm={() => {
             unDeploy(basicInfo);
           }}>
-            <a style={{fontSize: 12, marginLeft: 20}}>停用</a>
+            <a style={{ fontSize: 12, marginLeft: 20 }}>停用</a>
           </Popconfirm>
         ) : (<Popconfirm title="确认发布？" onConfirm={() => {
           deploy(basicInfo);
         }}>
-          <a style={{fontSize: 12, marginLeft: 20}}>发布</a>
+          <a style={{ fontSize: 12, marginLeft: 20 }}>发布</a>
         </Popconfirm>)}
       </div>
     </Row>
@@ -265,14 +272,14 @@ const Detail: React.FC<Props> = props => {
   return (
     <Spin tip="加载中..." spinning={spinning}>
       <PageHeaderWrapper title={titleInfo}
-                         content={content}
-                         extra={action}
+        content={content}
+        extra={action}
       >
         <Card>
           <Tabs>
             <Tabs.TabPane tab="产品信息" key="info">
               <Descriptions
-                style={{marginBottom: 20}}
+                style={{ marginBottom: 20 }}
                 bordered
                 column={3}
                 title={
@@ -280,7 +287,7 @@ const Detail: React.FC<Props> = props => {
                     产品信息
                     <Button
                       icon="edit"
-                      style={{marginLeft: 20}}
+                      style={{ marginLeft: 20 }}
                       type="link"
                       onClick={() => setSaveVisible(true)}
                     >
@@ -314,37 +321,55 @@ const Detail: React.FC<Props> = props => {
                   {basicInfo.describe}
                 </Descriptions.Item>
               </Descriptions>
-              {config && config.name && (
-                <Descriptions
-                  style={{marginBottom: 20}}
-                  bordered
-                  column={2}
-                  title={
-                    <span>
-                      {config.name}
+              {config && config.length > 0 && (
+                <div style={{ width: '100%' }}>
+                  <Descriptions
+                    title={
+                      <span>
+                        配置
                       <Button
-                        icon="edit"
-                        style={{marginLeft: 20}}
-                        type="link"
-                        onClick={() => setUpdateVisible(true)}
-                      >
-                      编辑
+                          icon="edit"
+                          style={{ marginLeft: 20 }}
+                          type="link"
+                          onClick={() => setUpdateVisible(true)}
+                        >
+                          编辑
                     </Button>
-                    </span>
+                        {/* <Button
+                          style={{ marginLeft: 10 }}
+                          type="link"
+                          onClick={() => setUpdateVisible(true)}
+                        >
+                          应用配置
+                    </Button> */}
+                      </span>
+                    }
+                  ></Descriptions>
+                  {
+                    config.map((i: any) => (
+                      <div style={{ marginBottom: "20px" }} key={i.name}>
+                        <h3>{i.name}</h3>
+                        <Descriptions bordered column={2} title="">
+                          {
+                            i.properties && i.properties.map((item: any) => (
+                              <Descriptions.Item label={item.description ? (<div><span style={{marginRight: '10px'}}>{item.name}</span>
+                              <Tooltip title={item.description}>
+                                <Icon type="question-circle-o" />
+                              </Tooltip></div>) : item.name} span={1} key={item.property}>
+                                {basicInfo.configuration ? (
+                                  item.type.type === 'password' ? (
+                                    basicInfo.configuration[item.property]?.length > 0 ? '••••••' : null
+                                  ) :
+                                    basicInfo.configuration[item.property]
+                                ) : null}
+                              </Descriptions.Item>
+                            ))
+                          }
+                        </Descriptions>
+                      </div>
+                    ))
                   }
-                >
-                  {config.properties &&
-                  config.properties.map((item: any) => (
-                    <Descriptions.Item label={item.property} span={1} key={item.property}>
-                      {basicInfo.configuration ? (
-                        item.type.type === 'password' ? (
-                            basicInfo.configuration[item.property]?.length > 0 ? '••••••' : null
-                          ) :
-                          basicInfo.configuration[item.property]
-                      ) : null}
-                    </Descriptions.Item>
-                  ))}
-                </Descriptions>
+                </div>
               )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="物模型" key="metadata">
@@ -371,12 +396,13 @@ const Detail: React.FC<Props> = props => {
                   setTags(data);
                   updateData('tags', data);
                 }}
+                update={() => handleSearch()}
               />
             </Tabs.TabPane>
             <Tabs.TabPane tab="告警设置" key="metadata1">
               <Alarm target="product" productId={basicInfo.id} productName={basicInfo.name} targetId={basicInfo.id}
-                     metaData={basicInfo.metadata}
-                     name={basicInfo.name}/>
+                metaData={basicInfo.metadata}
+                name={basicInfo.name} />
             </Tabs.TabPane>
           </Tabs>
         </Card>
@@ -408,7 +434,7 @@ const Detail: React.FC<Props> = props => {
     </Spin>
   );
 };
-export default connect(({deviceProduct, loading}: ConnectState) => ({
+export default connect(({ deviceProduct, loading }: ConnectState) => ({
   deviceProduct,
   loading,
 }))(Detail);
