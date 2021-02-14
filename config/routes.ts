@@ -139,6 +139,7 @@ export const routes = [
                                 icon: 'appstore',
                                 iconfont: 'icon-shebei',
                                 tenant: ['admin', 'member'],
+                                version: 'pro',
                                 authority: ['device-category', 'admin'],
                                 component: './device/product-category',
                             },
@@ -519,7 +520,7 @@ export const routes = [
                         name: '国标网关',
                         icon: 'youtube',
                         version: 'pro',
-                        authority: ['gb28181-gateway','media-channel','media-server','media-stream','admin'],
+                        authority: ['gb28181-gateway','media-channel','media-server','media-stream','gb28181-cascade','admin'],
                         routes: [
                             {
                                 path: '/media/basic',
@@ -549,7 +550,7 @@ export const routes = [
                                 path: '/media/device',
                                 name: '国标设备',
                                 version: 'pro',
-                                authority: ['media-device','media-stream','admin'],
+                                authority: ['media-device','admin'],
                                 icon: 'gateway',
                                 component: './media/device',
                             },
@@ -557,6 +558,7 @@ export const routes = [
                                 hideInMenu: true,
                                 path: '/media/device/channel/:id',
                                 name: '通道列表',
+                                version: 'pro',
                                 tenant: ['admin', 'member'],
                                 iconfont: 'icon-shebei1',
                                 component: './media/device/channel',
@@ -568,6 +570,14 @@ export const routes = [
                                 authority: ['media-stream','admin'],
                                 icon: 'appstore',
                                 component: './media/reveal',
+                            },
+                            {
+                                path: '/media/cascade',
+                                name: '国标级联',
+                                version: 'pro',
+                                authority: ['gb28181-cascade','admin'],
+                                icon: 'cloud-upload',
+                                component: './media/cascade',
                             },
                         ]
                     },

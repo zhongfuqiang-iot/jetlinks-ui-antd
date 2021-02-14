@@ -151,7 +151,7 @@ const MediaDevice: React.FC<Props> = props => {
       // fixed: 'right',
       render: (record: any) => (
         <Fragment>
-          {/*<a
+          <a
             onClick={() => {
               setChannel(true);
               setChannelInfo(record);
@@ -159,7 +159,7 @@ const MediaDevice: React.FC<Props> = props => {
           >
             编辑
           </a>
-          <Divider type="vertical"/>*/}
+          <Divider type="vertical"/>
           {record.status.value === 'online' && (
             <a
               onClick={() => {
@@ -216,17 +216,14 @@ const MediaDevice: React.FC<Props> = props => {
   );
 
   return (
-    <PageHeaderWrapper
-      title={titleInfo}
-      content={content}
-    >
+    <PageHeaderWrapper title={titleInfo} content={content}>
       <Card style={{height: 92, marginBottom: 16}}>
-        <div className={styles.tableList}>
+        <div className={styles.tableList} style={{marginTop: -22}}>
           <div>
             <SearchForm
               search={(params: any) => {
                 setSearchParam(params);
-                params.deviceId = deviceId;
+                params ? params.deviceId = deviceId : params = {deviceId: deviceId};
                 handleSearch({terms: {...params}, sorts: {field: 'id', order: 'desc'}});
               }}
               formItems={[

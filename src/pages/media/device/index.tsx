@@ -1,5 +1,5 @@
 import {PageHeaderWrapper} from "@ant-design/pro-layout"
-import {Badge, Card, Divider, Popconfirm} from "antd";
+import {Badge, Card, Divider, message, Popconfirm} from "antd";
 import React, {Fragment, useEffect, useState} from "react";
 import styles from '@/utils/table.less';
 import SearchForm from "@/components/SearchForm";
@@ -29,7 +29,6 @@ const MediaDevice: React.FC<Props> = () => {
   const [deviceData, setDeviceData] = useState<any>({});
   const [result, setResult] = useState<any>({});
 
-  const [productList, setProductList] = useState<any[]>([]);
   const [searchParam, setSearchParam] = useState(initState.searchParam);
   const statusMap = new Map();
   statusMap.set('online', 'success');
@@ -42,15 +41,7 @@ const MediaDevice: React.FC<Props> = () => {
   streamMode.set('TCP_PASSIVE', 'TCP被动');
 
   useEffect(() => {
-    service.mediaGateway({}).subscribe((data) => {
-      let productIdList: any[] = [];
-      data.map((item: any) => {
-        productIdList.push(item.productId)
-      });
-      setProductList(productIdList);
-      searchParam.terms = {productId$IN: productIdList};
-      handleSearch(encodeQueryParam(searchParam));
-    })
+    handleSearch(searchParam);
   }, []);
 
   const handleSearch = (params?: any) => {
@@ -190,7 +181,15 @@ const MediaDevice: React.FC<Props> = () => {
               <Popconfirm
                 title="确认删除该国标设备吗？"
                 onConfirm={() => {
-
+                  setLoading(true);
+                  service.remove(record.id).subscribe(() => {
+                      message.success("删除成功");
+                      handleSearch(encodeQueryParam(searchParam));
+                    },
+                    () => {
+                      message.error("删除失败");
+                    },
+                    () => setLoading(false))
                 }}>
                 <a>删除</a>
               </Popconfirm>
@@ -202,13 +201,12 @@ const MediaDevice: React.FC<Props> = () => {
   ];
   return (
     <PageHeaderWrapper title="国标设备">
-      <Card style={{height: 92, marginBottom: 16}}>
-        <div className={styles.tableList}>
+      <Card style={{marginBottom: 16, height: 92}}>
+        <div className={styles.tableList} style={{marginTop: -22}}>
           <div>
             <SearchForm
               search={(params: any) => {
                 setSearchParam(params);
-                params.productId$IN = productList;
                 handleSearch({terms: {...params}, pageSize: 10, sorts: {field: 'id', order: 'desc'}});
               }}
               formItems={[
@@ -231,7 +229,6 @@ const MediaDevice: React.FC<Props> = () => {
             rowKey="id"
             scroll={{x: '150%'}}
             onSearch={(params: any) => {
-              params.terms['productId$IN'] = productList;
               params.sorts = params.sorts.field ? params.sorts : {field: 'id', order: 'desc'};
               handleSearch(params);
             }}
@@ -242,7 +239,6 @@ const MediaDevice: React.FC<Props> = () => {
       {deviceUpdate && (
         <DeviceUpdate close={() => {
           setDeviceUpdate(false);
-          searchParam.terms = {productId$IN: productList};
           handleSearch(encodeQueryParam(searchParam));
         }} data={deviceData}/>
       )}
