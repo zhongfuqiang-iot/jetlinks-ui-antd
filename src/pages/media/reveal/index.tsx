@@ -1,18 +1,18 @@
 import encodeQueryParam from "@/utils/encodeParam";
-import { ApartmentOutlined, AudioOutlined, DownOutlined, LeftOutlined, MinusOutlined, PlusOutlined, RightOutlined, UpOutlined, VideoCameraOutlined, VideoCameraTwoTone } from "@ant-design/icons/lib/icons";
-import { PageHeaderWrapper } from "@ant-design/pro-layout";
-import { Card, Tabs, Tree } from "antd";
-import React, { useEffect, useState } from "react";
+import {ApartmentOutlined, DownOutlined, VideoCameraOutlined, VideoCameraTwoTone} from "@ant-design/icons/lib/icons";
+import {PageHeaderWrapper} from "@ant-design/pro-layout";
+import {Card, Tabs, Tree} from "antd";
+import React, {useEffect, useState} from "react";
 import styles from './index.less';
 import Service from "./service";
-import { DataNode } from './data';
+import {DataNode} from './data';
 
 interface Props {
 
 }
 
 const Reveal: React.FC<Props> = props => {
-  const service = new Service('media/gb28181');
+  const service = new Service('media/gateway');
 
   const [treeData, setTreeData] = useState<DataNode>();
   const [players, setPlayers] = useState([{

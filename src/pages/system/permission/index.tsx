@@ -66,27 +66,45 @@ const PermissionList: React.FC<Props> = props => {
 
   const saveOrUpdate = (permission: PermissionItem) => {
     setSaveLoading(true);
-    dispatch({
-      type: 'permission/insert',
-      payload: encodeQueryParam(permission),
-      callback: (response: any) => {
-        if (response.status === 200) {
-          setCurrentItem({});
+    if(!!currentItem.id){
+      dispatch({
+        type: 'permission/updata',
+        payload: encodeQueryParam(permission),
+        callback: (response: any) => {
+          if (response.status === 200) {
+            setCurrentItem({});
+            message.success('更新成功');
+            handleSearch(setSearchParam);
+            setSaveVisible(false);
+          }
           setSaveLoading(false);
-          message.success('添加成功');
-          setSaveVisible(false);
-          handleSearch(setSearchParam);
-        }
-      },
-    });
+        },
+      });
+    }else{
+      dispatch({
+        type: 'permission/insert',
+        payload: encodeQueryParam(permission),
+        callback: (response: any) => {
+          if (response.status === 200) {
+            setCurrentItem({});
+            message.success('添加成功');
+            handleSearch(setSearchParam);
+            setSaveVisible(false);
+          }
+          setSaveLoading(false);
+        },
+      });
+    }
   };
   const handleDelete = (params: any) => {
     dispatch({
       type: 'permission/remove',
       payload: params.id,
-      callback: () => {
-        message.success('删除成功');
-        handleSearch(searchParam);
+      callback: (res) => {
+        if(res.status === 200){
+          message.success('删除成功');
+          handleSearch(searchParam);
+        }
       },
     });
   };
@@ -125,6 +143,7 @@ const PermissionList: React.FC<Props> = props => {
             title="确定删除此权限吗？"
             onConfirm={() => {
               handleDelete(record);
+              setSaveLoading(false);
             }}
           >
             <a>删除</a>
@@ -162,6 +181,7 @@ const PermissionList: React.FC<Props> = props => {
               type="primary"
               onClick={() => {
                 setSaveVisible(true);
+                setSaveLoading(false);
               }}
             >
               新建
@@ -192,8 +212,8 @@ const PermissionList: React.FC<Props> = props => {
                     apis.permission.add(data).then(resp => {
                       if (resp.status === 200) {
                         message.success('导入成功');
-                        setLoading(false);
                       }
+                      setLoading(false);
                     })
                   } catch (error) {
                     message.error('导入失败，请重试！');

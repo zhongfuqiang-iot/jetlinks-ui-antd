@@ -1,8 +1,15 @@
 import request from '@/utils/request';
-import {DeviceInstance} from './data.d';
+import { DeviceInstance } from './data.d';
 
 export async function list(params: any) {
   return request(`/jetlinks/device-instance/_query`, {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function queryNoPagin(params: any) {
+  return request(`/jetlinks/device-instance/_query/no-paging?paging=false`, {
     method: 'GET',
     params,
   });
@@ -37,6 +44,12 @@ export async function saveDevice(params: DeviceInstance) {
 
 export async function remove(id: string) {
   return request(`/jetlinks/device-instance/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function reset(id: string) {
+  return request(`/jetlinks/device/instance/${id}/metadata`, {
     method: 'DELETE',
   });
 }
@@ -175,5 +188,12 @@ export async function updateProperty(deviceId: string, data: any) {
 export async function deleteBinds(deviceId: string | undefined, bindType: string, bindKey: string) {
   return request(`/jetlinks/device/instance/${deviceId}/binds/${bindType}/${bindKey}`, {
     method: 'DELETE',
+  });
+}
+
+export async function saveOrUpdateMetadata(deviceId: string, data: any) {
+  return request(`/jetlinks/device/instance/${deviceId}/metadata`, {
+    method: 'PUT',
+    data,
   });
 }

@@ -129,7 +129,7 @@ const MediaCascade: React.FC<Props> = () => {
     {
       title: '是否启用',
       dataIndex: 'status',
-      width: 250,
+      width: 120,
       render: record => record ? <Badge status={statusMap.get(record.value)} text={record.text}/> : '/',
       filters: [
         {
@@ -146,8 +146,8 @@ const MediaCascade: React.FC<Props> = () => {
     {
       title: '连接状态',
       dataIndex: 'onlineStatus',
-      width: 250,
-      render: record => record ? <Badge status={statusMap.get(record.value)} text={record.text}/> : '/',
+      width: 120,
+      render: record => record ? <Badge status={onlineStatusMap.get(record.value)} text={record.text}/> : '/',
       filters: [
         {
           text: '在线',
@@ -219,7 +219,8 @@ const MediaCascade: React.FC<Props> = () => {
     {
       title: '操作',
       key: 'center',
-      width: 250,
+      fixed: 'right',
+      width: '10%',
       render: (record: any) => (
         <Fragment>
           <a

@@ -14,6 +14,7 @@ import * as ruleModel from '@/pages/rule-engine/model/service';
 import * as protocol from '@/pages/device/protocol/service';
 import * as openApi from '@/pages/system/open-api/service';
 import * as mqttClient from '@/pages/network/mqtt-client/service';
+import * as opcUa from '@/pages/network/opc-ua/service';
 import * as certificate from '@/pages/network/certificate/service';
 import * as sqlRule from '@/pages/rule-engine/sqlRule/service';
 import * as location from '@/pages/device/location/service';
@@ -43,6 +44,8 @@ import * as productCategoty from '@/pages/device/product-category/service';
 import * as aliyun from '@/pages/cloud/aliyun/service';
 import * as onenet from '@/pages/cloud/onenet/service';
 import * as ctwing from '@/pages/cloud/ctwing/service';
+import * as edgeProduct from '@/pages/edge-gateway/product/service';
+import * as edgeDevice from '@/pages/edge-gateway/device/service';
 
 const apis = {
   login,
@@ -62,6 +65,7 @@ const apis = {
   openApi,
   certificate,
   mqttClient,
+  opcUa,
   // coapClient,
   // httpClient,
   // tcpClient,
@@ -89,6 +93,8 @@ const apis = {
   productCategoty,
   aliyun, //阿里云
   onenet,
-  ctwing
+  ctwing,
+  edgeProduct,
+  edgeDevice
 };
 export default apis;

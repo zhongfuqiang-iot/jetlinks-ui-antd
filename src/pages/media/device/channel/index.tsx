@@ -1,5 +1,5 @@
 import {PageHeaderWrapper} from "@ant-design/pro-layout"
-import {Badge, Card, Descriptions, Divider, Row, Table} from "antd";
+import {Badge, Button, Card, Descriptions, Divider, message, Popconfirm, Row, Table} from "antd";
 import React, {Fragment, useEffect, useState} from "react";
 import styles from '@/utils/table.less';
 import SearchForm from "@/components/SearchForm";
@@ -9,6 +9,7 @@ import encodeQueryParam from "@/utils/encodeParam";
 import {Dispatch} from "@/models/connect";
 import Play from './play';
 import ChannelEdit from './edit/index';
+import {DeviceInstance} from "@/pages/device/instance/data";
 
 interface Props {
   dispatch: Dispatch;
@@ -20,14 +21,14 @@ interface State {
 }
 
 const initState: State = {
-  searchParam: {terms: location?.query?.terms, sorts: {field: 'id', order: 'desc'}},
+  searchParam: {pageSize: 10, terms: location?.query?.terms, sorts: {field: 'id', order: 'desc'}},
 };
 const MediaDevice: React.FC<Props> = props => {
   const {location: {pathname},} = props;
   const service = new Service('media/channel');
   const [loading, setLoading] = useState<boolean>(false);
   const [deviceId, setDeviceId] = useState<string>("");
-  const [result, setResult] = useState<any[]>([]);
+  const [result, setResult] = useState<any>({});
   const [deviceInfo, setDeviceInfo] = useState<any>({});
   const [channel, setChannel] = useState<boolean>(false);
   const [channelInfo, setChannelInfo] = useState<any>({});
@@ -70,11 +71,8 @@ const MediaDevice: React.FC<Props> = props => {
   const handleSearch = (params?: any) => {
     setSearchParam(params);
     setLoading(true);
-    service.mediaDeviceNoPaging(encodeQueryParam(params)).subscribe(
-      (data) => {
-        const temp = data.map((item: any) => ({parentId: item.parentChannelId, ...item}));
-        setResult(temp);
-      },
+    service.query(encodeQueryParam(params)).subscribe(
+      data => setResult(data),
       () => {
       },
       () => setLoading(false));
@@ -91,13 +89,6 @@ const MediaDevice: React.FC<Props> = props => {
       title: '通道名称',
       dataIndex: 'name',
       ellipsis: true,
-      // onCell: record => {
-      //   return {
-      //     onDoubleClick: () => {
-      //       console.log(record);
-      //     },
-      //   };
-      // }
     },
     {
       title: '厂商',
@@ -112,9 +103,9 @@ const MediaDevice: React.FC<Props> = props => {
     },
     {
       title: '云台类型',
-      dataIndex: 'others.ptzType',
+      dataIndex: 'ptzType',
       width: 100,
-      render: record => ptzType.get(record),
+      render: record => ptzType.get(record?.value || 0),
       ellipsis: true,
     },
     {
@@ -160,7 +151,7 @@ const MediaDevice: React.FC<Props> = props => {
             编辑
           </a>
           <Divider type="vertical"/>
-          {record.status.value === 'online' && (
+          {record.status.value === 'online' ? (
             <a
               onClick={() => {
                 setPlaying(true);
@@ -169,6 +160,28 @@ const MediaDevice: React.FC<Props> = props => {
             >
               播放
             </a>
+          ) : (
+            <Popconfirm
+              placement="topRight"
+              title="确定删除此通道吗？"
+              onConfirm={() => {
+                setLoading(true);
+                service.remove(record.id).subscribe(
+                  () => {
+                    message.success('通道删除成功');
+                  },
+                  () => {
+                    message.error('通道删除失败');
+                  },
+                  () => {
+                    handleSearch(searchParam);
+                    setLoading(false);
+                  },
+                );
+              }}
+            >
+              <a>删除</a>
+            </Popconfirm>
           )}
         </Fragment>
       )
@@ -178,13 +191,16 @@ const MediaDevice: React.FC<Props> = props => {
   const onTableChange = (
     pagination: PaginationConfig,
     filters: any,
-    sorter: SorterResult<any>,
+    sorter: SorterResult<DeviceInstance>,
   ) => {
-    searchParam.terms = filters;
-    searchParam.terms['deviceId'] = deviceId;
-    searchParam.sorts = sorter.field ? sorter : {field: 'id', order: 'desc'};
+    let {terms} = searchParam;
 
-    handleSearch(searchParam);
+    handleSearch({
+      pageIndex: Number(pagination.current) - 1,
+      pageSize: pagination.pageSize,
+      terms: {...terms, ...filters},
+      sorts: sorter,
+    })
   };
 
   const content = (
@@ -224,7 +240,7 @@ const MediaDevice: React.FC<Props> = props => {
               search={(params: any) => {
                 setSearchParam(params);
                 params ? params.deviceId = deviceId : params = {deviceId: deviceId};
-                handleSearch({terms: {...params}, sorts: {field: 'id', order: 'desc'}});
+                handleSearch({pageSize: 10, terms: {...params}, sorts: {field: 'id', order: 'desc'}});
               }}
               formItems={[
                 {
@@ -241,14 +257,34 @@ const MediaDevice: React.FC<Props> = props => {
         <div className={styles.StandardTable}>
           <Table
             loading={loading}
-            dataSource={result}
             columns={columns}
+            dataSource={(result || {}).data}
             rowKey="id"
-            // scroll={{x: '120%'}}
             onChange={onTableChange}
             pagination={{
-              pageSize: 10
-            }}/>
+              current: result?.pageIndex + 1,
+              total: result?.total,
+              pageSize: result?.pageSize,
+              showQuickJumper: true,
+              showSizeChanger: true,
+              pageSizeOptions: ['10', '20', '50', '100'],
+              showTotal: (total: number) =>
+                `共 ${total} 条记录 第  ${result?.pageIndex + 1}/${Math.ceil(
+                  result?.total / result?.pageSize,
+                )}页`,
+            }}
+          />
+
+          {/*<ProTable
+            loading={loading}
+            dataSource={result?.data}
+            columns={columns}
+            rowKey="id"
+            onSearch={() => {
+              handleSearch({terms: {deviceId: deviceId}, sorts: {field: 'id', order: 'desc'}});
+            }}
+            paginationConfig={result}
+          />*/}
         </div>
       </Card>
       {playing && <Play data={data} close={() => {

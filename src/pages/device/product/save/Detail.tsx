@@ -56,6 +56,7 @@ const Detail: React.FC<Props> = props => {
   const [spinning, setSpinning] = useState(initState.spinning);
   const [units, setUnits] = useState(initState.units);
   const [updateVisible, setUpdateVisible] = useState(false);
+  const [productId, setProductId] = useState("");
 
   const handleSearch = (id?: string) => {
     const list = pathname.split('/');
@@ -79,11 +80,9 @@ const Detail: React.FC<Props> = props => {
           // apis.deviceProdcut
           //   .protocolConfiguration(data.messageProtocol, data.transportProtocol)
           //   .then(resp => {
-          //     // console.log(resp)
           //     setConfig(resp.result);
           //   });
           apis.deviceProdcut.productConfiguration(data.id).then(resp => {
-            // console.log(resp.result)
             setConfig(resp.result);
           })
         }
@@ -120,6 +119,7 @@ const Detail: React.FC<Props> = props => {
     if (pathname.indexOf('save') > 0) {
       const list = pathname.split('/');
       handleSearch(list[list.length - 1]);
+      setProductId(list[list.length - 1]);
     }
   }, []);
 
@@ -147,7 +147,7 @@ const Detail: React.FC<Props> = props => {
       });
   };
 
-  const updateData = (type: string, item: any) => {
+  const updateData = (type: string, item: any, onlySave: boolean) => {
     let metadata = JSON.stringify({ events, properties, functions, tags });
     if (type === 'event') {
       metadata = JSON.stringify({ events: item, properties, functions, tags });
@@ -165,6 +165,9 @@ const Detail: React.FC<Props> = props => {
       .then((re: any) => {
         if (re.status === 200) {
           message.success('保存成功');
+          if (!onlySave) {
+            deploy(data)
+          }
         }
       })
       .catch(() => {
@@ -186,6 +189,7 @@ const Detail: React.FC<Props> = props => {
       },
     });
   };
+
   const unDeploy = (record: any) => {
     setSpinning(true);
     dispatch({
@@ -202,7 +206,7 @@ const Detail: React.FC<Props> = props => {
     });
   };
 
-  const updateInfo = (item?: any) => {
+  const updateInfo = (onlySave: boolean, item?: any) => {
     apis.deviceProdcut
       .update(item, basicInfo.id)
       .then((response: any) => {
@@ -211,6 +215,24 @@ const Detail: React.FC<Props> = props => {
           setUpdateVisible(false);
           const list = pathname.split('/');
           handleSearch(list[list.length - 1]);
+          if (!onlySave) {
+            // deploy(basicInfo)
+            setSpinning(true);
+            dispatch({
+              type: 'deviceProduct/unDeploy',
+              payload: basicInfo.id,
+              callback: res => {
+                if (res.status === 200) {
+                  basicInfo.state = 0;
+                  setBasicInfo(basicInfo);
+                  message.success('操作成功');
+                  setSpinning(false);
+                  const list = pathname.split('/');
+                  handleSearch(list[list.length - 1]);
+                }
+              },
+            });
+          }
         }
       })
       .catch(() => {
@@ -317,7 +339,7 @@ const Detail: React.FC<Props> = props => {
                 <Descriptions.Item label="设备类型" span={1}>
                   {(basicInfo.deviceType || {}).text}
                 </Descriptions.Item>
-                <Descriptions.Item label="说明" span={2}>
+                <Descriptions.Item label="说明" span={3}>
                   {basicInfo.describe}
                 </Descriptions.Item>
               </Descriptions>
@@ -352,10 +374,10 @@ const Detail: React.FC<Props> = props => {
                         <Descriptions bordered column={2} title="">
                           {
                             i.properties && i.properties.map((item: any) => (
-                              <Descriptions.Item label={item.description ? (<div><span style={{marginRight: '10px'}}>{item.name}</span>
-                              <Tooltip title={item.description}>
-                                <Icon type="question-circle-o" />
-                              </Tooltip></div>) : item.name} span={1} key={item.property}>
+                              <Descriptions.Item label={item.description ? (<div><span style={{ marginRight: '10px' }}>{item.name}</span>
+                                <Tooltip title={item.description}>
+                                  <Icon type="question-circle-o" />
+                                </Tooltip></div>) : item.name} span={1} key={item.property}>
                                 {basicInfo.configuration ? (
                                   item.type.type === 'password' ? (
                                     basicInfo.configuration[item.property]?.length > 0 ? '••••••' : null
@@ -380,23 +402,23 @@ const Detail: React.FC<Props> = props => {
                 propertyData={properties}
                 tagsData={tags}
                 unitsData={units}
-                saveEvents={(data: any) => {
+                saveEvents={(data: any, onlySave: boolean) => {
                   setEvents(data);
-                  updateData('event', data);
+                  updateData('event', data, onlySave);
                 }}
-                saveFunctions={(data: any) => {
+                saveFunctions={(data: any, onlySave: boolean) => {
                   setFunctions(data);
-                  updateData('function', data);
+                  updateData('function', data, onlySave);
                 }}
-                saveProperty={(data: any[]) => {
+                saveProperty={(data: any[], onlySave: boolean) => {
                   setProperties(data);
-                  updateData('properties', data);
+                  updateData('properties', data, onlySave);
                 }}
-                saveTags={(data: any[]) => {
+                saveTags={(data: any[], onlySave: boolean) => {
                   setTags(data);
-                  updateData('tags', data);
+                  updateData('tags', data, onlySave);
                 }}
-                update={() => handleSearch()}
+                update={() => handleSearch(productId)}
               />
             </Tabs.TabPane>
             <Tabs.TabPane tab="告警设置" key="metadata1">
@@ -425,8 +447,8 @@ const Detail: React.FC<Props> = props => {
             close={() => {
               setUpdateVisible(false);
             }}
-            save={(item: any) => {
-              updateInfo(item);
+            save={(onlySave: boolean, item: any) => {
+              updateInfo(onlySave, item);
             }}
           />
         )}

@@ -10,6 +10,7 @@ import encodeQueryParam from '@/utils/encodeParam';
 import Save from './save';
 import Authorization from '@/components/Authorization';
 import BindUser from './user';
+import apis from '@/services';
 
 interface Props {
   org: any;
@@ -69,17 +70,28 @@ const OrgList: React.FC<Props> = props => {
   }, []);
 
   const saveOrUpdate = (item: OrgItem) => {
-    dispatch({
-      type: 'org/insert',
-      payload: encodeQueryParam(item),
-      callback: (response: any) => {
-        if (response.status === 200) {
+    if (currentItem.id) {
+      dispatch({
+        //编辑
+        type: 'org/insert',
+        payload: encodeQueryParam(item),
+        callback: (response: any) => {
+          if (response.status === 200) {
+            message.success('保存成功');
+          }
+          setSaveVisible(false);
+          handleSearch(searchParam);
+        },
+      });
+    } else {
+      apis.org.add(item).then(res => {
+        if (res.status === 200) {
           message.success('保存成功');
         }
         setSaveVisible(false);
         handleSearch(searchParam);
-      },
-    });
+      });
+    }
   };
   const handleDelete = (item: any) => {
     dispatch({
@@ -107,25 +119,27 @@ const OrgList: React.FC<Props> = props => {
     {
       title: '机构标识',
       dataIndex: 'id',
-      width: '20%',
+      width: '45%',
     },
     {
       title: '机构名称',
       dataIndex: 'name',
-      width: '20%',
+      width: '15%',
     },
     {
       title: '描述',
       dataIndex: 'describe',
-      width: '30%',
+      width: '10%',
     },
     {
       title: '操作',
+      width: '20%',
       render: (text, record) => (
         <Fragment>
           <a
             onClick={() => {
               setCurrentItem(record);
+              setParentId(null);
               setSaveVisible(true);
             }}
           >
@@ -203,15 +217,15 @@ const OrgList: React.FC<Props> = props => {
               rowKey="id"
               onChange={onTableChange}
               pagination={false}
-            // pagination={{
-            //     current: result.pageIndex + 1,
-            //     total: result.total,
-            //     pageSize: result.pageSize,
-            //     showQuickJumper: true,
-            //     showSizeChanger: true,
-            //     pageSizeOptions: ['10', '20', '50', '100'],
-            //     showTotal: (total: number) => `共 ${total} 条记录 第  ${result.pageIndex + 1}/${Math.ceil(result.total / result.pageSize)}页`
-            // }}
+              // pagination={{
+              //     current: result.pageIndex + 1,
+              //     total: result.total,
+              //     pageSize: result.pageSize,
+              //     showQuickJumper: true,
+              //     showSizeChanger: true,
+              //     pageSizeOptions: ['10', '20', '50', '100'],
+              //     showTotal: (total: number) => `共 ${total} 条记录 第  ${result.pageIndex + 1}/${Math.ceil(result.total / result.pageSize)}页`
+              // }}
             />
           </div>
         </div>

@@ -1,18 +1,17 @@
-import {PageHeaderWrapper} from "@ant-design/pro-layout"
-import {Badge, Card, Divider, message, Popconfirm} from "antd";
-import React, {Fragment, useEffect, useState} from "react";
+import {PageHeaderWrapper} from '@ant-design/pro-layout';
+import {Badge, Button, Card, Divider, message, Popconfirm} from 'antd';
+import React, {Fragment, useEffect, useState} from 'react';
 import styles from '@/utils/table.less';
-import SearchForm from "@/components/SearchForm";
-import ProTable from "@/pages/system/permission/component/ProTable";
-import {ColumnProps} from "antd/lib/table";
-import Service from "./service";
-import encodeQueryParam from "@/utils/encodeParam";
-import {router} from "umi";
-import DeviceUpdate from "./edit/index";
-import moment from "moment";
+import SearchForm from '@/components/SearchForm';
+import ProTable from '@/pages/system/permission/component/ProTable';
+import {ColumnProps} from 'antd/lib/table';
+import Service from './service';
+import encodeQueryParam from '@/utils/encodeParam';
+import {router} from 'umi';
+import DeviceUpdate from './edit/index';
+import moment from 'moment';
 
 interface Props {
-
 }
 
 interface State {
@@ -20,7 +19,11 @@ interface State {
 }
 
 const initState: State = {
-  searchParam: {pageSize: 10, terms: location?.query?.terms, sorts: {field: 'id', order: 'desc'}},
+  searchParam: {
+    pageSize: 10,
+    terms: location?.query?.terms,
+    sorts: {field: 'id', order: 'desc'},
+  },
 };
 const MediaDevice: React.FC<Props> = () => {
   const service = new Service('media/device');
@@ -48,25 +51,25 @@ const MediaDevice: React.FC<Props> = () => {
     setSearchParam(params);
     setLoading(true);
     service.query(encodeQueryParam(params)).subscribe(
-      (data) => setResult(data),
+      data => setResult(data),
       () => {
       },
-      () => setLoading(false))
+      () => setLoading(false),
+    );
   };
-
 
   const columns: ColumnProps<any>[] = [
     {
       title: '国标设备编号',
       dataIndex: 'id',
-      width: 180,
+      width: 200,
       ellipsis: true,
       fixed: 'left',
     },
     {
       title: '设备名称',
       dataIndex: 'name',
-      render: (record: any) => record ? record : result.id,
+      render: (record: any) => (record ? record : result.id),
       ellipsis: true,
     },
     {
@@ -79,7 +82,7 @@ const MediaDevice: React.FC<Props> = () => {
       title: '流传输模式',
       dataIndex: 'streamMode',
       width: 110,
-      render: record => record ? streamMode.get(record) : '/',
+      render: record => (record ? streamMode.get(record) : '/'),
       ellipsis: true,
     },
     {
@@ -92,7 +95,8 @@ const MediaDevice: React.FC<Props> = () => {
       title: '设备状态',
       dataIndex: 'state',
       width: 110,
-      render: record => record ? <Badge status={statusMap.get(record.value)} text={record.text}/> : '/',
+      render: record =>
+        record ? <Badge status={statusMap.get(record.value)} text={record.text}/> : '/',
       filters: [
         {
           text: '未启用',
@@ -139,7 +143,7 @@ const MediaDevice: React.FC<Props> = () => {
     {
       title: '创建时间',
       dataIndex: 'createTime',
-      render: (text: any) => text ? moment(text).format('YYYY-MM-DD HH:mm:ss') : '/',
+      render: (text: any) => (text ? moment(text).format('YYYY-MM-DD HH:mm:ss') : '/'),
       sorter: true,
       width: 180,
       ellipsis: true,
@@ -148,7 +152,7 @@ const MediaDevice: React.FC<Props> = () => {
       title: '操作',
       key: 'center',
       fixed: 'right',
-      width: 230,
+      width: 260,
       render: (record: any) => (
         <Fragment>
           <a
@@ -175,28 +179,49 @@ const MediaDevice: React.FC<Props> = () => {
           >
             查看通道
           </a>
-          {record.state.value !== 'online' && (
-            <>
-              <Divider type="vertical"/>
-              <Popconfirm
-                title="确认删除该国标设备吗？"
-                onConfirm={() => {
-                  setLoading(true);
-                  service.remove(record.id).subscribe(() => {
-                      message.success("删除成功");
-                      handleSearch(encodeQueryParam(searchParam));
-                    },
-                    () => {
-                      message.error("删除失败");
-                    },
-                    () => setLoading(false))
-                }}>
-                <a>删除</a>
-              </Popconfirm>
-            </>
+          <Divider type="vertical"/>
+          {record.state.value === 'online' ? (
+            <a
+              onClick={() => {
+                setLoading(true);
+                service._sync(record.id).subscribe(
+                  () => {
+                    message.success('通道更新成功');
+                  },
+                  () => {
+                    message.error('通道更新失败');
+                  },
+                  () => setLoading(false),
+                );
+              }}
+            >
+              更新通道
+            </a>
+          ):(
+            <Popconfirm
+              placement="topRight"
+              title="确定删除此国标设备吗？"
+              onConfirm={() => {
+                setLoading(true);
+                service.remove(record.id).subscribe(
+                  () => {
+                    message.success('国标设备删除成功');
+                  },
+                  () => {
+                    message.error('国标设备删除失败');
+                  },
+                  () => {
+                    handleSearch(searchParam);
+                    setLoading(false);
+                  },
+                );
+              }}
+            >
+              <a>删除</a>
+            </Popconfirm>
           )}
         </Fragment>
-      )
+      ),
     },
   ];
   return (
@@ -207,7 +232,11 @@ const MediaDevice: React.FC<Props> = () => {
             <SearchForm
               search={(params: any) => {
                 setSearchParam(params);
-                handleSearch({terms: {...params}, pageSize: 10, sorts: {field: 'id', order: 'desc'}});
+                handleSearch({
+                  terms: {...params},
+                  pageSize: 10,
+                  sorts: {field: 'id', order: 'desc'},
+                });
               }}
               formItems={[
                 {
@@ -229,6 +258,7 @@ const MediaDevice: React.FC<Props> = () => {
             rowKey="id"
             scroll={{x: '150%'}}
             onSearch={(params: any) => {
+              params.pageSize = 10;
               params.sorts = params.sorts.field ? params.sorts : {field: 'id', order: 'desc'};
               handleSearch(params);
             }}
@@ -237,12 +267,15 @@ const MediaDevice: React.FC<Props> = () => {
         </div>
       </Card>
       {deviceUpdate && (
-        <DeviceUpdate close={() => {
-          setDeviceUpdate(false);
-          handleSearch(encodeQueryParam(searchParam));
-        }} data={deviceData}/>
+        <DeviceUpdate
+          close={() => {
+            setDeviceUpdate(false);
+            handleSearch(searchParam);
+          }}
+          data={deviceData}
+        />
       )}
     </PageHeaderWrapper>
-  )
+  );
 };
 export default MediaDevice;

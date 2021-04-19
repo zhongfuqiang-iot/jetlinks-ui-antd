@@ -38,7 +38,7 @@ const Member = (props: Props) => {
       })
     } else {
       if (id) {
-        service.member.query(id, encodeQueryParam(params)).subscribe(resp => {
+        service.member.query3(id, encodeQueryParam(params)).subscribe(resp => {
           setUserList(resp);
           setLoading(false);
         })
@@ -130,6 +130,7 @@ const Member = (props: Props) => {
       <SearchForm
         search={(params: any) => {
           searchParam.terms = params;
+          searchParam.pageIndex=0;
           handleSearch(searchParam);
         }}
         formItems={[{

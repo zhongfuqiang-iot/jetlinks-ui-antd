@@ -15,8 +15,16 @@ const Save: React.FC<Props> = props => {
   const {form: {getFieldDecorator}, form} = props;
   const [serveIdList, setServeIdList] = useState([]);
   const [sipConfigs, setSipConfigs] = useState<any>([]);
+  const [mediaServerList, setMediaServerList] = useState<any[]>([]);
 
   useEffect(() => {
+
+    service.mediaServer({}).subscribe((data) => {
+      setMediaServerList(data);
+    }, () => {
+    }, () => {
+    });
+
     setSipConfigs(props.data.sipConfigs || [
       {
         sipId: '',
@@ -106,25 +114,47 @@ const Save: React.FC<Props> = props => {
                 })(<Input placeholder="请输入级联名称"/>)}
               </Form.Item>
             </Col>
-            <Col span={24}>
-              <Form.Item key="describe" label="说明" labelCol={{span: 3}} wrapperCol={{span: 21}}>
-                {getFieldDecorator('description', {
-                  initialValue: props.data.description,
-                })(<Input.TextArea rows={4} placeholder="请输入至少五个字符"/>)}
+            <Col span={12}>
+              <Form.Item label="流媒体服务">
+                {getFieldDecorator('mediaServerId', {
+                  initialValue: props.data?.mediaServerId,
+                  rules: [
+                    {required: true, message: '请选择流媒体服务'}
+                  ],
+                })(<Select placeholder="请选择流媒体服务">
+                  {(mediaServerList || []).map(item => (
+                    <Select.Option
+                      key={JSON.stringify({mediaServerId: item.id, mediaServerName: item.name})}
+                      value={item.id}
+                    >
+                      {`${item.name}(${item.id})`}
+                    </Select.Option>
+                  ))}
+                </Select>,)}
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="代理视频流">
+                {getFieldDecorator('proxyStream', {
+                  initialValue: props.data?.proxyStream || false,
+                })(<Radio.Group buttonStyle="solid">
+                  <Radio.Button value={true}>启用</Radio.Button>
+                  <Radio.Button value={false}>禁用</Radio.Button>
+                </Radio.Group>)}
               </Form.Item>
             </Col>
           </Row>
-          <Divider orientation="left" dashed>
+          <Divider orientation="left" dashed style={{marginTop: -15}}>
             <div style={{fontWeight: 'bold'}}>信令服务配置</div>
           </Divider>
           {
             sipConfigs.map((item: any, index: number) => {
               return (
                 <div key={index}
-                     style={{backgroundColor: 'rgba(192,192,192,0.1)', marginBottom: '10px', paddingTop: '20px'}}>
-                  <div style={{width: "90%", marginLeft: '5%', paddingBottom: 10, fontSize: 16}}>
+                     style={{backgroundColor: 'rgba(192,192,192,0.1)', marginBottom: 10, paddingTop: 10}}>
+                  {/*<div style={{width: "90%", marginLeft: '5%', paddingBottom: 10, fontSize: 16}}>
                     <b>服务： {index + 1}</b>
-                  </div>
+                  </div>*/}
                   <div style={{display: 'flex', justifyContent: 'center'}}>
                     <div style={{width: "90%"}}>
                       <Row gutter={0} justify="start">
@@ -136,7 +166,7 @@ const Save: React.FC<Props> = props => {
                             })(
                               <Select placeholder="请选择集群节点ID">
                                 {(serveIdList || []).map((item: any) => (
-                                  <Select.Option key={item.id} value={item.id}> item.id </Select.Option>
+                                  <Select.Option key={item.id} value={item.id}>{item.id}</Select.Option>
                                 ))}
                               </Select>,
                             )}

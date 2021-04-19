@@ -31,7 +31,7 @@ class Service extends BaseService<any> {
         map(resp => resp.result)
       ));
 
-  public mediaDeviceNoPaging = (params: any) => defer(
+  public deviceChannelNoPaging = (params: any) => defer(
     () => from(request(`/jetlinks/media/channel/_query/no-paging?paging=false`, {
       method: 'GET',
       params
@@ -70,6 +70,15 @@ class Service extends BaseService<any> {
         map(resp => resp.result)
       ));
 
+  public mediaServer = (params: any) => defer(
+    () => from(request(`/jetlinks/media/server/_query/no-paging?paging=false`, {
+      method: 'GET',
+      params
+    }))
+      .pipe(
+        filter(resp => resp.status === 200),
+        map(resp => resp.result)
+      ));
 }
 
 export default Service;

@@ -26,6 +26,7 @@ const Update: React.FC<Props> = props => {
 
       service.update(fileValue).subscribe(
         () => {
+          message.success('保存成功');
           props.close();
         },
         () => {
@@ -76,7 +77,7 @@ const Update: React.FC<Props> = props => {
             rules: [
               {required: true, message: '请选择云台类型'}
             ],
-            initialValue: props.data?.ptzType || 0,
+            initialValue: props.data?.ptzType.value || 0,
           })(
             <Select>
               <Select.Option value={0}>未知</Select.Option>

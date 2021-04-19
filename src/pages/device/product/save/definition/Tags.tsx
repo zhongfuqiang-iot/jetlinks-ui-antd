@@ -41,7 +41,7 @@ const Tags: React.FC<Props> = (props: Props) => {
   const deleteItem = (item: any) => {
     const temp = data.filter(e => e.id !== item.id);
     setData(temp);
-    props.save(temp);
+    props.save(temp, true);
   };
 
   const columns: ColumnProps<TagsMeta>[] = [
@@ -81,7 +81,7 @@ const Tags: React.FC<Props> = (props: Props) => {
     },
   ];
 
-  const saveTagsData = (item: TagsMeta) => {
+  const saveTagsData = (item: TagsMeta, onlySave: boolean) => {
     if (!data) {
       setData([]);
     }
@@ -93,7 +93,7 @@ const Tags: React.FC<Props> = (props: Props) => {
     }
     setVisible(false);
     setData(data);
-    props.save(data);
+    props.save(data, onlySave);
   };
   return (
     <div>
@@ -115,8 +115,8 @@ const Tags: React.FC<Props> = (props: Props) => {
         <TagsDefin
           data={current}
           unitsData={props.unitsData}
-          save={(item: TagsMeta) => {
-            saveTagsData(item);
+          save={(item: TagsMeta, onlySave: boolean) => {
+            saveTagsData(item, onlySave);
           }}
           close={() => {
             setVisible(false);

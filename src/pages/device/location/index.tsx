@@ -17,7 +17,7 @@ import {
   Switch,
   Table,
   Tabs, Tooltip,
-  TreeSelect,
+  TreeSelect
 } from 'antd';
 import {FormComponentProps} from 'antd/lib/form';
 import {Map, Polygon} from 'react-amap';
@@ -162,6 +162,7 @@ const Location: React.FC<Props> = props => {
         .then((response: any) => {
           if (response.status === 200) {
             setAlarmLogData(response.result);
+            setSpinning(false);
           }
         })
         .catch(() => {
@@ -668,28 +669,31 @@ const Location: React.FC<Props> = props => {
                         }
                       >
                         {(productList || []).map(item => (
-                          <Select.Option value={item.id}>{item.name}</Select.Option>
+                          <Select.Option value={item.id} key={item.id}>{item.name}</Select.Option>
                         ))}
                       </Select>,
                     )}
                   </Form.Item>
                   <Form.Item key="device" label="设备信息" style={{marginBottom: 14}}>
                     <Input.Group compact>
-                      {getFieldDecorator('device.key', {
-                        initialValue: 'deviceId',
-                      })(
-                        <Select style={{width: 100}} id="device_key">
-                          <Select.Option value="deviceId">设备ID</Select.Option>
-                          <Select.Option value="deviceName">设备名称</Select.Option>
-                        </Select>,
-                      )}
-                      {getFieldDecorator('device.value', {
-                        initialValue: undefined,
-                      })(
-                        <Input id="value" style={{width: 'calc(100% - 100px)'}} placeholder="输入设备信息"/>,
-                      )}
+                          <Form.Item>
+                              {getFieldDecorator('device.key', {
+                                initialValue: 'deviceId',
+                              })(
+                                <Select id="device_key" style={{width: 100}}>
+                                  <Select.Option value="deviceId">设备ID</Select.Option>
+                                  <Select.Option value="deviceName">设备名称</Select.Option>
+                                </Select>,
+                              )}   
+                              
+                          </Form.Item>
+                          {getFieldDecorator('device.value', {
+                              initialValue: undefined,
+                                 })(
+                               <Input id="value" style={{width: 'calc(100% - 100px)', margin: '4px 0 0 0'}} placeholder="输入设备信息"/>,
+                             )} 
                     </Input.Group>
-                  </Form.Item>
+                  </Form.Item>          
                   <div style={{textAlign: 'right'}}>
                     <Button type="primary" ghost={false} onClick={() => {
                       setSpinning(true);
@@ -706,18 +710,20 @@ const Location: React.FC<Props> = props => {
                       resetPathPolygon();
 
                       //默认取出区域下拉列表中的第一个区域以及下属区域
-                      regionList[0].data.geometry.coordinates.map((path: any) => {
-                        pathPolygon.push(path[0]);
-                      });
+                      if (regionList.length > 0) {
+                        regionList[0].data.geometry.coordinates.map((path: any) => {
+                          pathPolygon.push(path[0]);
+                        });
 
-                      regionList.map((region: any) => {
-                        if (String(regionList[0].id) === String(region.pId)) {
-                          region.data.geometry.coordinates.map((path: any) => {
-                            pathPolygon.push(path[0]);
-                          });
-                        }
-                      });
-                      setPathPolygon([...pathPolygon]);
+                        regionList.map((region: any) => {
+                          if (String(regionList[0].id) === String(region.pId)) {
+                            region.data.geometry.coordinates.map((path: any) => {
+                              pathPolygon.push(path[0]);
+                            });
+                          }
+                        });
+                        setPathPolygon([...pathPolygon]);
+                      }
                       // 结束
                       handleSearch({pageSize: 10, sorts: {field: 'alarmTime', order: 'desc'}});
                       mapCreated.remove(infoWindow);

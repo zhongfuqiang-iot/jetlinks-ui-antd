@@ -13,7 +13,8 @@ import BindUser from './user';
 import RoleService from './service';
 import ProTable from '../permission/component/ProTable';
 import { ListData } from '@/services/response';
-import apis from "@/services";
+import apis from '@/services';
+import SearchForm from '@/components/SearchForm';
 
 interface Props {
   role: any;
@@ -31,10 +32,9 @@ interface State {
 }
 
 const RoleList: React.FC<Props> = props => {
-
+  const { dispatch } = props;
   const initState: State = {
     searchParam: {
-      paging: false,
       pageIndex: 0,
       pageSize: 10,
       terms: {
@@ -62,6 +62,10 @@ const RoleList: React.FC<Props> = props => {
       setLoading(false);
     });
     setSearchParam(params);
+    dispatch({
+      type: 'role/query',
+      payload: encodeQueryParam(params),
+    });
   };
 
   useEffect(() => {
@@ -69,26 +73,40 @@ const RoleList: React.FC<Props> = props => {
   }, []);
 
   const saveOrUpdate = (item: RoleItem) => {
-    apis.role.saveOrUpdate(item)
-      .then((response: any) => {
-        if (response.status === 200) {
-          message.success('保存成功');
-          handleSearch(searchParam);
-        }
-      })
-      .catch(() => {
-      })
+    if (currentItem.id) {
+      apis.role
+        .saveOrUpdate(item)
+        .then((response: any) => {
+          if (response.status === 200) {
+            message.success('保存成功');
+            handleSearch(searchParam);
+          }
+          setLoading(false);
+        })
+        .catch(() => {});
+    } else {
+      apis.role
+        .save(item)
+        .then((response: any) => {
+          if (response.status === 200) {
+            message.success('新增成功');
+            handleSearch(searchParam);
+          }
+          setLoading(false);
+        })
+        .catch(() => {});
+    }
   };
   const handleDelete = (item: any) => {
-    apis.role.remove(item.id)
+    apis.role
+      .remove(item.id)
       .then((response: any) => {
         if (response.status === 200) {
           message.success('删除成功');
           handleSearch(searchParam);
         }
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   const columns: ColumnProps<RoleItem>[] = [
@@ -104,7 +122,7 @@ const RoleList: React.FC<Props> = props => {
     },
     {
       title: '描述',
-      dataIndex: 'description',
+      dataIndex: 'describe',
       width: '30%',
     },
     {
@@ -156,8 +174,26 @@ const RoleList: React.FC<Props> = props => {
     <PageHeaderWrapper title="角色管理">
       <Card bordered={false}>
         <div className={styles.tableList}>
-          <div className={styles.tableListForm}>
+          <div>
+            <SearchForm
+              search={(params: any) => {
+                handleSearch({ terms: { ...params, typeId: 'role' }, pageSize: 10, pageIndex: 0 });
+              }}
+              formItems={[
+                {
+                  label: '角色标识',
+                  key: 'id$LIKE',
+                  type: 'string',
+                },
+                {
+                  label: '角色名称',
+                  key: 'name$LIKE',
+                  type: 'string',
+                },
+              ]}
+            />
           </div>
+          <div className={styles.tableListForm}></div>
           <div className={styles.tableListOperator}>
             <Button
               icon="plus"
@@ -179,7 +215,7 @@ const RoleList: React.FC<Props> = props => {
                   columns={columns}
                   rowKey="id"
                   onSearch={(params: any) => {
-                    handleSearch(params);
+                    handleSearch({ ...params, terms: searchParam.terms });
                   }}
                   paginationConfig={result}
                 />
