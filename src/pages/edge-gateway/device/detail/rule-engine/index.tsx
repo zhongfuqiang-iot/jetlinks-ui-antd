@@ -56,25 +56,45 @@ const RuleEngine: React.FC<Props> = props => {
     }, []);
 
     const startInstance = (params?: any) => {
-        service.startRuleInstance(props.device.id, params.id).subscribe(
-            () => {
-                handleSearch(searchParam);
-                message.success('操作成功！');
-            },
-            () => {
-            },
-            () => setLoading(false))
+        if(params.modelType === 'device_alarm'){
+            service._start(props.device.id, { id: params.id }).subscribe(
+                () => {
+                    handleSearch(searchParam);
+                    message.success('操作成功！');
+                },
+                () => setLoading(false)
+              )
+        }else{
+            service.startRuleInstance(props.device.id, params.id).subscribe(
+                () => {
+                    handleSearch(searchParam);
+                    message.success('操作成功！');
+                },
+                () => {
+                },
+                () => setLoading(false))
+        }
     };
 
     const stopInstance = (params?: any) => {
-        service.stopRuleInstance(props.device.id, params.id).subscribe(
-            () => {
-                handleSearch(searchParam);
-                message.success('操作成功！');
-            },
-            () => {
-            },
-            () => setLoading(false))
+        if(params.modelType === 'device_alarm'){
+            service._stop(props.device.id, { id: params.id }).subscribe(
+                () => {
+                    handleSearch(searchParam);
+                    message.success('操作成功！');
+                },
+                () => setLoading(false)
+              )
+        }else{
+            service.stopRuleInstance(props.device.id, params.id).subscribe(
+                () => {
+                    handleSearch(searchParam);
+                    message.success('操作成功！');
+                },
+                () => {
+                },
+                () => setLoading(false))
+        }
     };
 
     const handleDelete = (params?: any) => {
@@ -245,21 +265,9 @@ const RuleEngine: React.FC<Props> = props => {
                     deviceId={props.device.id}
                     save={(item: any) => {
                         setSaveVisible(false);
-                        if (item.instanceType === 'device_alarm') {
-                            let param: any = {...item};
-                            param.instanceType = undefined;
-                            service.saveAlarms(props.device.id, param).subscribe(
-                                (resp) => {
-                                    if (resp.status === 200) {
-                                        message.success('保存成功！');
-                                        handleSearch(searchParam);
-                                    }
-                                },
-                                () => {
-                                },
-                                () => setLoading(false));
-                        } else if (item.instanceType === 'node-red') {
+                        if (item.instanceType === 'node-red') {
                             service.saveRuleInstance(props.device.id, {
+                                id: item.id,
                                 name: item.name,
                                 description: item.description
                             }).subscribe(

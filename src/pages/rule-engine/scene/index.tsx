@@ -76,6 +76,15 @@ const RuleInstanceList: React.FC<Props> = props => {
     })
   };
 
+  const onChange = (page: number, pageSize: number) => {
+    handleSearch({
+      pageIndex: page - 1,
+      pageSize,
+      terms: searchParam.terms,
+      sorts: searchParam.sorts,
+    });
+  };
+
   useEffect(() => {
     handleSearch(searchParam);
   }, []);
@@ -143,6 +152,7 @@ const RuleInstanceList: React.FC<Props> = props => {
             loading={props.loading}
             grid={{ gutter: 24, xl: 4, lg: 3, md: 3, sm: 2, xs: 1 }}
             dataSource={(sceneList || {}).data}
+            on
             pagination={{
               current: sceneList?.pageIndex + 1,
               total: sceneList?.total,
@@ -152,6 +162,7 @@ const RuleInstanceList: React.FC<Props> = props => {
               hideOnSinglePage: true,
               pageSizeOptions: ['8', '16', '40', '80'],
               style: { marginTop: -20 },
+              onChange,
               showTotal: (total: number) =>
                 `共 ${total} 条记录 第  ${sceneList.pageIndex + 1}/${Math.ceil(
                   sceneList.total / sceneList.pageSize,
@@ -185,72 +196,74 @@ const RuleInstanceList: React.FC<Props> = props => {
                           <Dropdown overlay={
                             <Menu>
                               {item.state?.value === 'started' && (
-                                <>
-                                  <Menu.Item key="1">
-                                    <Popconfirm
-                                      placement="topRight"
-                                      title='确认停止？'
-                                      onConfirm={() => {
-                                        apis.scene.stop(item.id).then(res => {
-                                          if (res.status === 200) {
-                                            handleSearch(searchParam);
-                                          }
-                                        })
-                                      }}
-                                    >
-                                      <Button icon='close' type="link">停止</Button>
-                                    </Popconfirm>
-                                  </Menu.Item>
-                                  <Menu.Item key="2">
-                                    <Popconfirm
-                                      placement="topRight"
-                                      title="确定执行场景吗？"
-                                      onConfirm={() => {
-                                        apis.scene.perform(item.id).then(res => {
-                                          if (res.status === 200) {
-                                            handleSearch(searchParam);
-                                          }
-                                        })
-                                      }}
-                                    >
-                                      <Button icon="tool" type="link">执行</Button>
-                                    </Popconfirm>
-                                  </Menu.Item>
-                                </>
+                                <Menu.Item key="2">
+                                  <Popconfirm
+                                    placement="topRight"
+                                    title="确定执行场景吗？"
+                                    onConfirm={() => {
+                                      apis.scene.perform(item.id).then(res => {
+                                        if (res.status === 200) {
+                                          message.success('操作成功')
+                                          handleSearch(searchParam);
+                                        }
+                                      })
+                                    }}
+                                  >
+                                    <Button icon="tool" type="link">执行</Button>
+                                  </Popconfirm>
+                                </Menu.Item>)}
+                              {item.state?.value === 'started' && (
+                                <Menu.Item key="1">
+                                  <Popconfirm
+                                    placement="topRight"
+                                    title='确认停止？'
+                                    onConfirm={() => {
+                                      apis.scene.stop(item.id).then(res => {
+                                        if (res.status === 200) {
+                                          message.success('操作成功')
+                                          handleSearch(searchParam);
+                                        }
+                                      })
+                                    }}
+                                  >
+                                    <Button icon='close' type="link">停止</Button>
+                                  </Popconfirm>
+                                </Menu.Item>
                               )}
                               {item.state?.value === 'stopped' && (
-                                <>
-                                  <Menu.Item key="1">
-                                    <Popconfirm
-                                      placement="topRight"
-                                      title='确认启动？'
-                                      onConfirm={() => {
-                                        apis.scene.start(item.id).then(res => {
-                                          if (res.status === 200) {
-                                            handleSearch(searchParam);
-                                          }
-                                        })
-                                      }}
-                                    >
-                                      <Button icon='check' type="link">启动</Button>
-                                    </Popconfirm>
-                                  </Menu.Item>
-                                  <Menu.Item key="2">
-                                    <Popconfirm
-                                      placement="topRight"
-                                      title="确定删除此场景吗？"
-                                      onConfirm={() => {
-                                        apis.scene.remove(item.id).then(res => {
-                                          if (res.status === 200) {
-                                            handleSearch(searchParam);
-                                          }
-                                        })
-                                      }}
-                                    >
-                                      <Button icon="delete" type="link">删除</Button>
-                                    </Popconfirm>
-                                  </Menu.Item>
-                                </>
+                                <Menu.Item key="3">
+                                  <Popconfirm
+                                    placement="topRight"
+                                    title='确认启动？'
+                                    onConfirm={() => {
+                                      apis.scene.start(item.id).then(res => {
+                                        if (res.status === 200) {
+                                          message.success('操作成功')
+                                          handleSearch(searchParam);
+                                        }
+                                      })
+                                    }}
+                                  >
+                                    <Button icon='check' type="link">启动</Button>
+                                  </Popconfirm>
+                                </Menu.Item>)}
+                              {item.state?.value === 'stopped' && (
+                                <Menu.Item key="4">
+                                  <Popconfirm
+                                    placement="topRight"
+                                    title="确定删除此场景吗？"
+                                    onConfirm={() => {
+                                      apis.scene.remove(item.id).then(res => {
+                                        if (res.status === 200) {
+                                          message.success('操作成功')
+                                          handleSearch(searchParam);
+                                        }
+                                      })
+                                    }}
+                                  >
+                                    <Button icon="delete" type="link">删除</Button>
+                                  </Popconfirm>
+                                </Menu.Item>
                               )}
                             </Menu>
                           }>

@@ -789,7 +789,7 @@ const TagsDefin: React.FC<Props> = props => {
   return (
     <div>
       <Drawer
-        title="编辑标签"
+        title={!initState.data.id ? `添加标签` : `编辑标签`}
         placement="right"
         closable={false}
         onClose={() => props.close()}
@@ -860,7 +860,7 @@ const TagsDefin: React.FC<Props> = props => {
           <Form.Item label="是否只读">
             {getFieldDecorator('expands.readOnly', {
               rules: [{ required: true }],
-              initialValue: initState.data.expands?.readOnly.toString(),
+              initialValue: initState.data.expands?.readOnly?.toString?.(),
             })(
               <Radio.Group>
                 <Radio value="true">是</Radio>

@@ -186,7 +186,7 @@ const Save: React.FC<Props> = props => {
                     initialValues={props.data}
                     actions={actions}
                     onSubmit={data => {
-                        if (data.actionMappings.length > 1) {
+                        if (data.actionMappings?.length > 1) {
                             data.actionMappings.map((item: any) => {
                                 const funcParam = item?.command?.message?.funcparam;
                                 const inputs: any = []
@@ -219,9 +219,9 @@ const Save: React.FC<Props> = props => {
                                 }
                                 return item
                             });
-                            console.log(data, 'dddd');
-                            props.save(data);
                         }
+                        //console.log(data, 'dddd');
+                        props.save(data);
                     }}
                     components={{ DatePicker, Input, Select, ArrayPanels, ArrayTable, FormCard, NumberPicker }}
                     schema={{
@@ -295,6 +295,12 @@ const Save: React.FC<Props> = props => {
                                             "span": 1,
                                         },
                                         "title": "设备类型",
+                                        "x-rules": [
+                                            {
+                                                "required": true,
+                                                "message": "此字段必填"
+                                            }
+                                        ],
                                         "x-component": "select",
                                         "visible": false,
                                         "enum": productInfo.type

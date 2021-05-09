@@ -690,8 +690,8 @@ const PropertiesDefin: React.FC<Props> = props => {
 
     if (data.id && data.valueType.type) {
       setLoadConfig(true);
-      apis.deviceProdcut.configMetadata({
-        productId: product.productId,
+      apis.deviceProdcut.deviceConfigMetadata({
+        productId: product.id,
         modelType: 'property',
         modelId: data.id,
         typeId: data.valueType.type
@@ -741,7 +741,7 @@ const PropertiesDefin: React.FC<Props> = props => {
   return (
     <div>
       <Drawer
-        title="编辑属性"
+        title={!initState.data.id ? `添加属性` : `编辑属性`}
         placement="right"
         closable={false}
         onClose={() => props.close()}
@@ -815,7 +815,7 @@ const PropertiesDefin: React.FC<Props> = props => {
             <Form.Item label="是否只读">
               {getFieldDecorator('expands.readOnly', {
                 rules: [{ required: true }],
-                initialValue: initState.data.expands?.readOnly.toString(),
+                initialValue: initState.data.expands?.readOnly?.toString?.(),
               })(
                 <Radio.Group>
                   <Radio value="true">是</Radio>

@@ -658,8 +658,8 @@ const FunctionDefin: React.FC<Props> = props => {
 
     if (data.id && data.output.type) {
       setLoadConfig(true);
-      apis.deviceProdcut.configMetadata({
-        productId: product.productId,
+      apis.deviceProdcut.deviceConfigMetadata({
+        productId: product.id,
         modelType: 'function',
         modelId: data.id,
         typeId: data.output.type
@@ -707,7 +707,7 @@ const FunctionDefin: React.FC<Props> = props => {
   }
   return (
     <Drawer
-      title="编辑功能定义"
+      title={!initState.data.id ? `添加功能定义` : `编辑功能定义`}
       placement="right"
       closable={false}
       onClose={() => props.close()}

@@ -695,8 +695,8 @@ const EventDefin: React.FC<Props> = props => {
 
     if (data.id && data.valueType.type) {
       setLoadConfig(true);
-      apis.deviceProdcut.configMetadata({
-        productId: product.productId,
+      apis.deviceProdcut.deviceConfigMetadata({
+        productId: product.id,
         modelType: 'event',
         modelId: data.id,
         typeId: data.valueType.type
@@ -744,7 +744,7 @@ const EventDefin: React.FC<Props> = props => {
   }
   return (
     <Drawer
-      title="编辑事件定义"
+      title={!initState.data.id ? `添加事件定义` : `编辑事件定义`}
       placement="right"
       closable={false}
       onClose={() => props.close()}
